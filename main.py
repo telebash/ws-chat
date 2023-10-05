@@ -1,5 +1,6 @@
 import os
 import json
+import logging
 
 import boto3
 
@@ -8,21 +9,20 @@ REQUEST_HANDLED = {"statusCode": 200}
 
 def connection_manager(event, context):
     if event["requestContext"]["eventType"] == "CONNECT":
-        print("Connect requested")
+        logging.info("Connect requested")
         return REQUEST_HANDLED
     elif event["requestContext"]["eventType"] == "DISCONNECT":
-        print("Disconnect requested")
+        logging.info("Disconnect requested")
         return REQUEST_HANDLED
 
 
-def send_ws_message(connection_id, body):
-    if not isinstance(body, str):
-        body = json.dumps(body)
-    _send_to_connection(connection_id, body)
-
-
-def _get_event_body(event):
-    return {"message": event.get("body", "")}
+def _get_event_body(event) -> dict:
+    try:
+        body = json.loads(event.get("body", ""))
+    except Exception as ex:
+        logging.error(ex)
+        raise Exception('Bad request body. It is not json')
+    return body
 
 
 def _send_to_connection(connection_id, data):
@@ -32,10 +32,19 @@ def _send_to_connection(connection_id, data):
 
 
 def handle_incoming_ws_message(event, context):
+    logging.info("Handle incoming WS message")
+
     body = _get_event_body(event)
-    body['type'] = 'echoReply'
-    connection_id = event["requestContext"].get("connectionId")
-    send_ws_message(connection_id, body)
+    connection_id: str = event["requestContext"].get("connectionId")
+    logging.info(connection_id)
+
+    command = body["command"]
+    logging.info(command)
+
+    if command == "hi":
+        _send_to_connection(connection_id, "Hello World!")
+    else:
+        _send_to_connection(connection_id, "Idk this command")
 
 
 def handler(event, context):
