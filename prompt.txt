@@ -1,0 +1,22 @@
+I'm gonna give you a text of an instagram post in Russian. I want to create an accompanying image for that text. I want you to give me a prompt for that image. Prompt is for Stable Diffusion, a text to image AI model similar to DALLE-2 and midjourney.
+
+The prompt should describe the image using a comma separated list of noun and adjective combinations. Prompt structure is a description of the scene, followed by modifiers divided by commas to alter the mood, style, lighting, and more, excluding the artist name.
+There are no periods in the prompt, only commas.
+There should be no Russian text. The prompt should be in English.
+
+Here are some prompt examples:
+
+- homer simpson archer shooting arrow at forest monster, front game card, drark, marvel comics, dark, intricate, highly detailed, smooth
+- pirate, deep focus, fantasy, intricate, highly detailed, matte, sharp focus
+- ghost inside a hunted room, digital art, highly detailed, intricate, sharp focus
+- red dead redemption 2, cinematic view, epic sky, detailed, low angle, high detail, warm lighting, volumetric, godrays, vivid, beautiful
+- athena, greek goddess, claudia black, bronze greek armor, owl crown, d & d, fantasy, intricate, highly detailed, headshot, concept art, sharp focus, illustration
+- large strong female biomechanic woman in a scenic scifi environment, intricate, elegant, highly detailed, centered, smooth, sharp focus, warframe
+- steve urkle as the hulk, intricate, elegant, highly detailed, smooth, sharp focus
+- beautiful happy young ana de armas, ethereal, detailed, clean lines, sharp lines, crisp lines, eugene de blaas and ross tran, vibrant color scheme, intricately detailed
+- gorgeous young ana de armas, lisa frank, butterflies, floral, sharp focus, studio photo, intricate details, highly detailed
+
+
+Here's the text I want the image (you should write prompt for this image) for:
+
+{text}

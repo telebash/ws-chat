@@ -1,50 +1,41 @@
-import os
-import json
-import logging
+import asyncio
 
-import boto3
+from loguru import logger
+
+from dispatcher import AsyncDispatcher
+from handlers import post, image
+from services.utils import get_event_body
 
 REQUEST_HANDLED = {"statusCode": 200}
+
+dp = AsyncDispatcher()
+
+post.register(dp)
+image.register(dp)
 
 
 def connection_manager(event, context):
     if event["requestContext"]["eventType"] == "CONNECT":
-        logging.info("Connect requested")
+        logger.info("Connect requested")
         return REQUEST_HANDLED
     elif event["requestContext"]["eventType"] == "DISCONNECT":
-        logging.info("Disconnect requested")
+        logger.info("Disconnect requested")
         return REQUEST_HANDLED
 
 
-def _get_event_body(event) -> dict:
-    try:
-        body = json.loads(event.get("body", ""))
-    except Exception as ex:
-        logging.error(ex)
-        raise Exception('Bad request body. It is not json')
-    return body
+async def handle_incoming_ws_message(event, context):
+    logger.info("Handle incoming WS message")
 
-
-def _send_to_connection(connection_id, data):
-    endpoint = os.environ['WEBSOCKET_API_ENDPOINT']
-    gatewayapi = boto3.client("apigatewaymanagementapi", endpoint_url=endpoint)
-    return gatewayapi.post_to_connection(ConnectionId=connection_id, Data=data.encode('utf-8'))
-
-
-def handle_incoming_ws_message(event, context):
-    logging.info("Handle incoming WS message")
-
-    body = _get_event_body(event)
+    body = get_event_body(event)
     connection_id: str = event["requestContext"].get("connectionId")
-    logging.info(connection_id)
+    logger.info(connection_id)
 
     command = body["command"]
-    logging.info(command)
+    data = body["data"]
 
-    if command == "hi":
-        _send_to_connection(connection_id, "Hello World!")
-    else:
-        _send_to_connection(connection_id, "Idk this command")
+    logger.info(command)
+    logger.info(data)
+    await dp.trigger_event(command, connection_id, **data)
 
 
 def handler(event, context):
@@ -53,7 +44,7 @@ def handler(event, context):
     if route_key == "$connect" or route_key == "$disconnect":
         connection_manager(event, context)
     elif route_key == "$default":
-        handle_incoming_ws_message(event, context)
+        return asyncio.get_event_loop().run_until_complete(handle_incoming_ws_message(event, context))
     else:
         return {"statusCode": 400}
 
