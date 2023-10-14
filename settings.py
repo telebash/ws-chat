@@ -38,6 +38,16 @@ class Settings(BaseSettings):
     class Config:
         env_file = ".env"
 
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30  # 30 minutes
+    REFRESH_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7  # 7 days
+
+    ALGORITHM: str = "HS256"
+    JWT_SECRET_KEY: str = os.environ['JWT_SECRET_KEY']
+    JWT_REFRESH_SECRET_KEY: str = os.environ['JWT_REFRESH_SECRET_KEY']
+
+    WS_ENDPOINT: str = os.environ['WEBSOCKET_API_ENDPOINT']
+    BUCKET_NAME: str = os.environ['BUCKET_NAME']
+
     DATABASE_PASSWORD: str = get_env_value('DATABASE_PASSWORD')
     DATABASE_USERNAME: str = get_env_value('DATABASE_USERNAME')
     DATABASE_NAME: str = get_env_value('DATABASE_NAME')

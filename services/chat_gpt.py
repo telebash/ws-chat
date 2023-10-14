@@ -12,7 +12,7 @@ from services.integrations.stable_dif import (
     StabilityAIUpscale,
     ReplicateStableDiffusionService
 )
-from services.utils import send_to_connection
+from services.utils import send_to_connection, get_s3_image_bytes
 
 
 async def get_content_plan_from_gpt(message, state, niche: str, posts_count: str) -> str:
@@ -51,7 +51,7 @@ async def get_content_plan_from_gpt(message, state, niche: str, posts_count: str
     return content
 
 
-async def get_themes_from_chat_gpt(message, state, niche: str, post_type: str) -> list:
+async def get_themes_from_chat_gpt(connection_id, niche: str, post_type: str) -> list:
     logger.info('Get themes flow')
     date_prefix = get_date_prefix()
     prompt = ChatPrompts.POST_THEME.value.format(
@@ -68,19 +68,23 @@ async def get_themes_from_chat_gpt(message, state, niche: str, post_type: str) -
         content = await service()
     except openai.error.ServiceUnavailableError as e:
         error_info = traceback.format_exc()
-        message_for_user = 'Серверы нагружены. Попробуйте позднее'
-        await message.answer(message_for_user)
-        message_for_log = message_for_user + '\n' + error_info
+        message_for_user = {
+            'type': 'error',
+            'body': 'Серверы нагружены. Попробуйте позднее'
+        }
+        send_to_connection(connection_id, message_for_user)
+        message_for_log = message_for_user['body'] + '\n' + error_info
         # await log_message(message.chat.id, message_for_log, 'bot')
-        await state.finish()
         raise e
     except Exception as e:
         error_info = traceback.format_exc()
-        message_for_user = 'Произошла ошибка. Сообщите ее по команде /feedback'
-        await message.answer(message_for_user)
-        message_for_log = message_for_user + '\n' + error_info
+        message_for_user = {
+            'type': 'error',
+            'body': 'Произошла ошибка. Сообщите ее по команде /feedback'
+        }
+        send_to_connection(connection_id, message_for_user)
+        message_for_log = message_for_user['body'] + '\n' + error_info
         # await log_message(message.chat.id, message_for_log, 'bot')
-        await state.finish()
         raise e
     _list = content.split('\n')
     return list(filter(lambda x: x != "", _list))
@@ -244,7 +248,7 @@ async def get_post_from_chat_gpt(connection_id, theme: str, project: str, text_s
     logger.info(prompt)
     data = {
         'prompt': prompt,
-        # 'stream': True
+        'stream': True
     }
     service = ChatGpt4Service(**data)
     try:
@@ -402,8 +406,8 @@ async def get_image_from_replicate(prompt: str, style: str = '', seed: int = 0, 
     return await service()
 
 
-async def get_upscale_image_from_stable_diffusion(connection_id, url: str, scale_data: str = '1024x1024'):
-    image = await get_image_from_url(url)
+async def get_upscale_image_from_stable_diffusion(connection_id, image_name: str, scale_data: str = '1024x1024'):
+    image = get_s3_image_bytes(connection_id, image_name)
     width, height = scale_data.split('x')
     data = {
         'image': image,

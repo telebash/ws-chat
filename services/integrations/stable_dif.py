@@ -208,4 +208,4 @@ class ReplicateStableDiffusionService(BaseService):
                     "GET", self.output_url,
                     headers=self.headers) as resp:
                 content = await resp.read()
-        return base64.b64encode(content), self.output_url
+        return base64.b64encode(content).decode(), self.output_url
