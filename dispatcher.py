@@ -1,38 +1,38 @@
-class Dispatcher:
-    def __init__(self):
-        self.listeners = {}
+from typing import Callable, Any, Awaitable, TypedDict
 
-    def add_listener(self, event_name, listener):
-        if event_name not in self.listeners:
-            self.listeners[event_name] = []
-        self.listeners[event_name].append(listener)
+from pydantic import BaseModel
 
-    def remove_listener(self, event_name, listener):
-        if event_name in self.listeners:
-            if listener in self.listeners[event_name]:
-                self.listeners[event_name].remove(listener)
 
-    def trigger_event(self, event_name, *args, **kwargs):
-        if event_name in self.listeners:
-            for listener in self.listeners[event_name]:
-                listener(*args, **kwargs)
+class Listener(TypedDict):
+    handler: Callable[[Any, Any], Awaitable[Any]]
+    model: type[BaseModel]
 
 
 class AsyncDispatcher:
     def __init__(self):
-        self.listeners = {}
+        self.listeners: dict[str, Listener] = {}
 
-    def add_listener(self, event_name, listener):
-        if event_name not in self.listeners:
-            self.listeners[event_name] = []
-        self.listeners[event_name].append(listener)
+    def add_handler(
+            self,
+            event_name: str,
+            schema: type[BaseModel],
+            handler: Callable[[Any, Any], Awaitable[Any]]
+    ):
+        self.listeners[event_name] = {
+            'handler': handler,
+            'model': schema,
+        }
 
-    def remove_listener(self, event_name, listener):
+    def remove_handler(self, event_name):
         if event_name in self.listeners:
-            if listener in self.listeners[event_name]:
-                self.listeners[event_name].remove(listener)
+            del self.listeners[event_name]
 
-    async def trigger_event(self, event_name, *args, **kwargs):
+    async def trigger_event(self, event_name: str, session_id: str, **kwargs):
         if event_name in self.listeners:
-            for listener in self.listeners[event_name]:
-                await listener(*args, **kwargs)
+            listener = self.listeners[event_name]
+            model = listener['model']
+            data = model(**kwargs)
+            handler = listener['handler']
+            await handler(session_id, data)
+        else:
+            raise ValueError(f'No event {event_name} registered')

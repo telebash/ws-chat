@@ -1,16 +1,17 @@
 from typing import Any
 
 from dispatcher import AsyncDispatcher
+from schemas.post import CreatePost
 from services.chat_gpt import get_post_from_chat_gpt
 from services.utils import send_to_connection
 
 
-async def create_post_handler(connection_id, theme, project, text_style):
+async def create_post_handler(connection_id: str, data: CreatePost):
     response: Any = await get_post_from_chat_gpt(
         connection_id,
-        theme,
-        project,
-        text_style
+        data.theme,
+        data.project,
+        data.text_style
     )
     message = {
         'type': 'post',
@@ -30,4 +31,4 @@ async def create_post_handler(connection_id, theme, project, text_style):
 
 
 def register(dp: AsyncDispatcher):
-    dp.add_listener('create_post', create_post_handler)
+    dp.add_handler('create_post', CreatePost, create_post_handler)

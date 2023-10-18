@@ -106,6 +106,6 @@ async def read_user_handler(connection_id, data: Token):
 
 
 def register(dp: AsyncDispatcher):
-    dp.add_listener('register', create_user_handler)
-    dp.add_listener('login', login_handler)
-    dp.add_listener('read_user', read_user_handler)
+    dp.add_handler('register', UserCreate, create_user_handler)
+    dp.add_handler('login', UserLogin, login_handler)
+    dp.add_handler('read_user', Token, read_user_handler)

@@ -4,8 +4,6 @@ from loguru import logger
 
 from dispatcher import AsyncDispatcher
 from handlers import post, image, theme, user
-from schemas.token import Token
-from schemas.user import UserCreate, UserLogin
 from services.utils import get_event_body
 
 REQUEST_HANDLED = {"statusCode": 200}
@@ -35,28 +33,6 @@ async def handle_incoming_ws_message(event, context):
     logger.info(connection_id)
 
     command = body["command"]
-
-    if command == "register":
-        data = UserCreate(**body["data"])
-        logger.info(command)
-        logger.info(data)
-        await dp.trigger_event(command, connection_id, data)
-        return
-
-    if command == "login":
-        data = UserLogin(**body["data"])
-        logger.info(command)
-        logger.info(data)
-        await dp.trigger_event(command, connection_id, data)
-        return
-
-    if command == "read_user":
-        data = Token(**body["data"])
-        logger.info(command)
-        logger.info(data)
-        await dp.trigger_event(command, connection_id, data)
-        return
-
     data = body["data"]
 
     logger.info(command)
