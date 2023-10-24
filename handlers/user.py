@@ -10,7 +10,7 @@ from services.user import (
     create_user,
     get_user_by_username,
     get_user_by_email,
-    get_user_by_token,
+    get_username_by_token,
 )
 from services.utils import send_to_connection
 from services.auth import (
@@ -82,7 +82,8 @@ async def login_handler(connection_id, data: UserLogin):
 
 async def read_user_handler(connection_id, data: Token):
     try:
-        user = await get_user_by_token(data.token, 'access_token')
+        username = get_username_by_token(data.token, 'access_token')
+        user = await get_user_by_username(username)
     except Exception as e:
         error_info = traceback.format_exc()
         message = {
@@ -115,7 +116,20 @@ async def read_user_handler(connection_id, data: Token):
 
 
 async def update_token_handler(connection_id, data: Token):
-    user = await get_user_by_token(data.token, 'refresh_token')
+    try:
+        username = get_username_by_token(data.token, 'refresh_token')
+        user = await get_user_by_username(username)
+    except Exception as e:
+        error_info = traceback.format_exc()
+        message = {
+            'command': 'update_token',
+            'status': 'error',
+            'body': 'Error reading user'
+        }
+        send_to_connection(connection_id, message)
+        message_for_log = message['body'] + ' ' + error_info
+        logger.info(message_for_log)
+        raise e
 
     if user is None:
         message = {

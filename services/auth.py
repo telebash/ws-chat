@@ -4,8 +4,6 @@ from typing import Union, Any
 import bcrypt
 from jose import jwt
 
-from db import User
-from services.user import get_user_by_username
 from settings import settings
 
 

@@ -39,10 +39,9 @@ async def get_user_by_email(email: str) -> Union[User | None]:
     return user
 
 
-async def get_user_by_token(token: str, token_type: str) -> Union[User | None]:
+def get_username_by_token(token: str, token_type: str) -> str:
     if token_type == "access_token":
         username = decode_access_token(token)
     else:
         username = decode_refresh_token(token)
-    user = await get_user_by_username(username)
-    return user
+    return username
