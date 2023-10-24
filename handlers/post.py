@@ -1,12 +1,12 @@
 from typing import Any
 
 from dispatcher import AsyncDispatcher
-from schemas.post import CreatePost
+from schemas.post import PostCreate
 from services.chat_gpt import get_post_from_chat_gpt
 from services.utils import send_to_connection
 
 
-async def create_post_handler(connection_id: str, data: CreatePost):
+async def create_post_handler(connection_id: str, data: PostCreate):
     response: Any = await get_post_from_chat_gpt(
         connection_id,
         data.theme,
@@ -31,4 +31,4 @@ async def create_post_handler(connection_id: str, data: CreatePost):
 
 
 def register(dp: AsyncDispatcher):
-    dp.add_handler('create_post', CreatePost, create_post_handler)
+    dp.add_handler('create_post', PostCreate, create_post_handler)

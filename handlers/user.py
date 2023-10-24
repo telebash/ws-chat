@@ -2,13 +2,22 @@ import traceback
 
 from email_validator import validate_email, EmailNotValidError
 from loguru import logger
-from pydantic import parse_obj_as
 
 from dispatcher import AsyncDispatcher
 from schemas.token import Token
-from schemas.user import UserCreate, UserLogin, UserBase
-from services.user import create_user, get_user_by_username, get_user_by_email, get_current_user
-from services.utils import send_to_connection, verify_password, create_access_token, create_refresh_token
+from schemas.user import UserCreate, UserLogin
+from services.user import (
+    create_user,
+    get_user_by_username,
+    get_user_by_email,
+    get_user_by_token,
+)
+from services.utils import send_to_connection
+from services.auth import (
+    verify_password,
+    create_access_token,
+    create_refresh_token, decode_refresh_token,
+)
 
 
 async def create_user_handler(connection_id, data: UserCreate):
@@ -73,7 +82,7 @@ async def login_handler(connection_id, data: UserLogin):
 
 async def read_user_handler(connection_id, data: Token):
     try:
-        user = await get_current_user(data.token)
+        user = await get_user_by_token(data.token)
     except Exception as e:
         error_info = traceback.format_exc()
         message = {
@@ -105,7 +114,31 @@ async def read_user_handler(connection_id, data: Token):
     send_to_connection(connection_id, message)
 
 
+async def update_token_handler(connection_id, data: Token):
+    username = decode_refresh_token(data.token)
+    user = await get_user_by_username(username)
+
+    if user is None:
+        message = {
+            'command': 'update_token',
+            'status': 'error',
+            'body': 'User not authorization'
+        }
+        send_to_connection(connection_id, message)
+
+    message = {
+        'command': 'update_token',
+        'status': 'success',
+        'body': {
+            "access_token": create_access_token(username),
+            "refresh_token": create_refresh_token(username),
+        }
+    }
+    send_to_connection(connection_id, message)
+
+
 def register(dp: AsyncDispatcher):
     dp.add_handler('register', UserCreate, create_user_handler)
     dp.add_handler('login', UserLogin, login_handler)
     dp.add_handler('read_user', Token, read_user_handler)
+    dp.add_handler('update_token', Token, update_token_handler)

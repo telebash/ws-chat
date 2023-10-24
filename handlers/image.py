@@ -28,7 +28,8 @@ async def create_image_handler(connection_id, data: CreateImage):
         except Exception as e:
             error_info = traceback.format_exc()
             message_for_user = {
-                'type': 'error',
+                'command': 'create_image',
+                'status': 'error',
                 'body': 'Серверы нагружены. Попробуйте позднее'
             }
             send_to_connection(connection_id, message_for_user)
@@ -39,7 +40,8 @@ async def create_image_handler(connection_id, data: CreateImage):
     image_url = upload_s3_image_base64(connection_id, image_name, image_base64)
 
     message = {
-        'type': 'image',
+        'command': 'create_image',
+        'status': 'success',
         'body': image_url,
     }
 
@@ -58,7 +60,8 @@ async def upscale_image_handler(connection_id, data: UpscaleImage):
     image_url = upload_s3_image_base64(connection_id, image_name, image_base64)
 
     message = {
-        'type': 'upscale_image',
+        'command': 'upscale_image',
+        'status': 'success',
         'body': image_url,
     }
 

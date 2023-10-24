@@ -7,6 +7,7 @@ class UserBase(BaseModel):
     username: Optional[str] = None
     email: Optional[EmailStr] = None
     password: Optional[str] = None
+    image_url: Optional[str] = None
 
 
 class UserCreate(UserBase):
@@ -29,6 +30,7 @@ class UserInDBBase(UserBase):
     username: str
     email: EmailStr
     password: str
+    image_url: Optional[str] = None
 
     class Config:
         orm_mode = True

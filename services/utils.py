@@ -1,50 +1,11 @@
 import base64
 import json
 import logging
-import os
 import traceback
 import uuid
-from datetime import datetime, timedelta
-from typing import re, Union, Any
-
-import bcrypt
 import boto3
-from jose import jwt
 
 from settings import settings
-
-
-def hash_password(password: str) -> str:
-    salt = bcrypt.gensalt()
-    hashed_password = bcrypt.hashpw(password.encode('utf-8'), salt)
-
-    return hashed_password.decode('utf-8')
-
-
-def verify_password(password: str, hashed_password: str) -> bool:
-    return bcrypt.checkpw(password.encode('utf-8'), hashed_password.encode('utf-8'))
-
-
-def create_access_token(subject: Union[str, Any], expires_delta: int = None) -> str:
-    if expires_delta is not None:
-        expires_delta = datetime.utcnow() + expires_delta
-    else:
-        expires_delta = datetime.utcnow() + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-
-    to_encode = {"exp": expires_delta, "sub": str(subject)}
-    encoded_jwt = jwt.encode(to_encode, settings.JWT_SECRET_KEY, settings.ALGORITHM)
-    return encoded_jwt
-
-
-def create_refresh_token(subject: Union[str, Any], expires_delta: int = None) -> str:
-    if expires_delta is not None:
-        expires_delta = datetime.utcnow() + expires_delta
-    else:
-        expires_delta = datetime.utcnow() + timedelta(minutes=settings.REFRESH_TOKEN_EXPIRE_MINUTES)
-
-    to_encode = {"exp": expires_delta, "sub": str(subject)}
-    encoded_jwt = jwt.encode(to_encode, settings.JWT_REFRESH_SECRET_KEY, settings.ALGORITHM)
-    return encoded_jwt
 
 
 def get_event_body(event) -> dict:
@@ -54,6 +15,15 @@ def get_event_body(event) -> dict:
         logging.error(ex)
         raise Exception('Bad request body. It is not json')
     return body
+
+
+def get_event_auth_header(event) -> str:
+    try:
+        auth_header = event.get("headers", {}).get("Authorization", "")
+    except Exception as ex:
+        logging.error(ex)
+        raise Exception('Bad request header. It is not json')
+    return auth_header
 
 
 def send_to_connection(connection_id, data):

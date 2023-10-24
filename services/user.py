@@ -5,6 +5,7 @@ from sqlalchemy import select
 
 from db import Session, User
 from schemas.user import UserCreate
+from services.auth import decode_access_token
 from services.utils import hash_password
 from settings import settings
 
@@ -41,12 +42,7 @@ async def get_user_by_email(email: str) -> Union[User | None]:
     return user
 
 
-async def get_current_user(token: str) -> Union[User | None]:
-    payload = jwt.decode(
-        token,
-        settings.JWT_SECRET_KEY,
-        algorithms=[settings.ALGORITHM],
-        options={"verify_aud": False},
-    )
-    username: str = payload.get("sub")
-    return await get_user_by_username(username)
+async def get_user_by_token(token: str) -> Union[User | None]:
+    username = decode_access_token(token)
+    user = await get_user_by_username(username)
+    return user
