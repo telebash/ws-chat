@@ -16,7 +16,7 @@ from services.utils import send_to_connection
 from services.auth import (
     verify_password,
     create_access_token,
-    create_refresh_token, decode_refresh_token,
+    create_refresh_token,
 )
 
 
@@ -82,7 +82,7 @@ async def login_handler(connection_id, data: UserLogin):
 
 async def read_user_handler(connection_id, data: Token):
     try:
-        user = await get_user_by_token(data.token)
+        user = await get_user_by_token(data.token, 'access_token')
     except Exception as e:
         error_info = traceback.format_exc()
         message = {
@@ -115,8 +115,7 @@ async def read_user_handler(connection_id, data: Token):
 
 
 async def update_token_handler(connection_id, data: Token):
-    username = decode_refresh_token(data.token)
-    user = await get_user_by_username(username)
+    user = await get_user_by_token(data.token, 'refresh_token')
 
     if user is None:
         message = {
@@ -130,8 +129,8 @@ async def update_token_handler(connection_id, data: Token):
         'command': 'update_token',
         'status': 'success',
         'body': {
-            "access_token": create_access_token(username),
-            "refresh_token": create_refresh_token(username),
+            "access_token": create_access_token(user.username),
+            "refresh_token": create_refresh_token(user.username),
         }
     }
     send_to_connection(connection_id, message)

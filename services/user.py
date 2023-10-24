@@ -1,13 +1,10 @@
 from typing import Union
 
-from jose import jwt
 from sqlalchemy import select
 
 from db import Session, User
 from schemas.user import UserCreate
-from services.auth import decode_access_token
-from services.utils import hash_password
-from settings import settings
+from services.auth import hash_password, decode_access_token, decode_refresh_token
 
 
 async def create_user(data: UserCreate) -> User:
@@ -42,7 +39,10 @@ async def get_user_by_email(email: str) -> Union[User | None]:
     return user
 
 
-async def get_user_by_token(token: str) -> Union[User | None]:
-    username = decode_access_token(token)
+async def get_user_by_token(token: str, token_type: str) -> Union[User | None]:
+    if token_type == "access_token":
+        username = decode_access_token(token)
+    else:
+        username = decode_refresh_token(token)
     user = await get_user_by_username(username)
     return user
