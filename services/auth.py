@@ -61,7 +61,7 @@ def decode_refresh_token(token: str):
     try:
         payload = jwt.decode(
             token,
-            settings.JWT_SECRET_KEY,
+            settings.JWT_REFRESH_SECRET_KEY,
             algorithms=[settings.ALGORITHM],
             options={"verify_aud": False},
         )

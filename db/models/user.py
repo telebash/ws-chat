@@ -14,7 +14,7 @@ class User(BaseModel, TimestampModel):
     password = Column(String, nullable=False)
 
     active_project = Column(Integer, default=None)
-    projects = relationship("Project", back_populates="user", order_by="Project.created_at.desc()")
+    projects = relationship("Project", back_populates="user")
     # free_use = Column(Integer, default=5)
     # free_use_bool = Column(Boolean, default=True)
     # paid = Column(Boolean, default=False)

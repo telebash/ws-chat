@@ -1,10 +1,10 @@
 from sqlalchemy import Column, Integer, String, Boolean, BigInteger, ForeignKey
 from sqlalchemy.orm import relationship
 
-from db.models.base import BaseModel
+from db.models.base import BaseModel, TimestampModel
 
 
-class Project(BaseModel):
+class Project(BaseModel, TimestampModel):
     id = Column(Integer, primary_key=True)
     name = Column(String(255), nullable=False)
     description = Column(String(255), nullable=True, default=None)
