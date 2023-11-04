@@ -287,3 +287,21 @@ class Resolutions(Enum):
     X2 = "1024x1024"
     INST_900 = "1344x768"
     INST_600 = "768x1344"
+
+
+class ChatEnum(str, Enum):
+    POSTS = "POSTS"
+    IMAGES = "IMAGES"
+    THEMES = "THEMES"
+
+
+class MessageTypeEnum(str, Enum):
+    TEXT = "TEXT"
+    POST = "POST"
+    IMAGE = "IMAGE"
+    THEME = "THEME"
+
+
+class SenderEnum(str, Enum):
+    USER = "USER"
+    SYSTEM = "SYSTEM"

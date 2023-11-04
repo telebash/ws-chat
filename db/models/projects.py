@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Boolean, BigInteger, ForeignKey
+from sqlalchemy import Column, Integer, String, Boolean, ForeignKey
 from sqlalchemy.orm import relationship
 
 from db.models.base import BaseModel, TimestampModel
@@ -13,5 +13,6 @@ class Project(BaseModel, TimestampModel):
     themes = relationship('Theme', back_populates='project')
     images = relationship('Image', back_populates='project')
     posts = relationship('Post', back_populates='project')
-    user_id = Column(BigInteger, ForeignKey('user.id', ondelete='SET NULL'))
+    messages = relationship('Message', back_populates='project')
+    user_id = Column(Integer, ForeignKey('user.id', ondelete='SET NULL'))
     user = relationship('User', back_populates='projects')

@@ -1,10 +1,8 @@
 from sqlalchemy import func, DateTime, Column
-from sqlalchemy.ext.declarative import as_declarative
-from sqlalchemy.orm import declared_attr
+from sqlalchemy.orm import declared_attr, DeclarativeBase
 
 
-@as_declarative()
-class BaseModel:
+class BaseModel(DeclarativeBase):
     __name__: str
 
     @declared_attr

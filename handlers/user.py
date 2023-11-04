@@ -10,13 +10,13 @@ from services.user import (
     create_user,
     get_user_by_username,
     get_user_by_email,
-    get_username_by_token,
 )
 from services.utils import send_to_connection
 from services.auth import (
     verify_password,
     create_access_token,
     create_refresh_token,
+    auth_check_and_get_user,
 )
 
 
@@ -73,6 +73,10 @@ async def login_handler(connection_id, data: UserLogin):
         'command': 'login',
         'status': 'success',
         'body': {
+            "user": {
+                "username": user.username,
+                "email": user.email,
+            },
             "access_token": create_access_token(user.username),
             "refresh_token": create_refresh_token(user.username),
         }
@@ -81,31 +85,11 @@ async def login_handler(connection_id, data: UserLogin):
 
 
 async def read_user_handler(connection_id, data: Token):
-    try:
-        username = get_username_by_token(data.token, 'access_token')
-        user = await get_user_by_username(username)
-    except Exception as e:
-        error_info = traceback.format_exc()
-        message = {
-            'command': 'read_user',
-            'status': 'error',
-            'body': 'Error reading user'
-        }
-        send_to_connection(connection_id, message)
-        message_for_log = message['body'] + ' ' + error_info
-        logger.info(message_for_log)
-        raise e
-
-    if user is None:
-        message = {
-            'command': 'read_user',
-            'status': 'error',
-            'body': 'User not authorization'
-        }
-        send_to_connection(connection_id, message)
+    command = 'read_user'
+    user = await auth_check_and_get_user(connection_id, command, data.token)
 
     message = {
-        'command': 'read_user',
+        'command': command,
         'status': 'success',
         'body': {
             'username': user.username,
@@ -116,31 +100,11 @@ async def read_user_handler(connection_id, data: Token):
 
 
 async def update_token_handler(connection_id, data: Token):
-    try:
-        username = get_username_by_token(data.token, 'refresh_token')
-        user = await get_user_by_username(username)
-    except Exception as e:
-        error_info = traceback.format_exc()
-        message = {
-            'command': 'update_token',
-            'status': 'error',
-            'body': 'Error reading user'
-        }
-        send_to_connection(connection_id, message)
-        message_for_log = message['body'] + ' ' + error_info
-        logger.info(message_for_log)
-        raise e
-
-    if user is None:
-        message = {
-            'command': 'update_token',
-            'status': 'error',
-            'body': 'User not authorization'
-        }
-        send_to_connection(connection_id, message)
+    command = 'update_token'
+    user = await auth_check_and_get_user(connection_id, command, data.token)
 
     message = {
-        'command': 'update_token',
+        'command': command,
         'status': 'success',
         'body': {
             "access_token": create_access_token(user.username),

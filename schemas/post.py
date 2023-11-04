@@ -2,6 +2,8 @@ from typing import Optional
 
 from pydantic import BaseModel
 
+from schemas.token import Token
+
 
 class PostBase(BaseModel):
     theme: Optional[str] = None
@@ -9,7 +11,7 @@ class PostBase(BaseModel):
     text_style: Optional[str] = None
 
 
-class PostCreate(PostBase):
+class PostCreate(Token):
     theme: str
     project: str
     text_style: str

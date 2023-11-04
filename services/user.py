@@ -26,7 +26,7 @@ async def get_user_by_username(username: str) -> Union[User | None]:
     query = select(User).where(User.username == username)
     user = await db.execute(query)
     user = user.scalars().first()
-    await db.commit()
+    await db.close()
     return user
 
 
@@ -35,7 +35,7 @@ async def get_user_by_email(email: str) -> Union[User | None]:
     query = select(User).where(User.email == email)
     user = await db.execute(query)
     user = user.scalars().first()
-    await db.commit()
+    await db.close()
     return user
 
 

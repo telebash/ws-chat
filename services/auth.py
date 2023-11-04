@@ -1,9 +1,12 @@
+import traceback
 from datetime import datetime, timedelta
 from typing import Union, Any
 
 import bcrypt
 from jose import jwt
+from loguru import logger
 
+from services.utils import send_to_connection
 from settings import settings
 
 
@@ -72,3 +75,32 @@ def decode_refresh_token(token: str):
         raise Exception("Token expired")
     except jwt.JWTError as e:
         raise Exception(e)
+
+
+async def auth_check_and_get_user(connection_id: str, command: str, token: str):
+    from services.user import get_username_by_token, get_user_by_username
+
+    try:
+        username = get_username_by_token(token, 'access_token')
+        user = await get_user_by_username(username)
+    except Exception as e:
+        error_info = traceback.format_exc()
+        message = {
+            'command': command,
+            'status': 'error',
+            'body': 'Error reading user'
+        }
+        send_to_connection(connection_id, message)
+        message_for_log = message['body'] + ' ' + error_info
+        logger.info(message_for_log)
+        raise e
+
+    if user is None:
+        message = {
+            'command': command,
+            'status': 'error',
+            'body': 'User not authorization'
+        }
+        send_to_connection(connection_id, message)
+
+    return user

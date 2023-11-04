@@ -1,12 +1,14 @@
 from pydantic import BaseModel
 
+from schemas.token import Token
 
-class CreateImage(BaseModel):
+
+class CreateImage(Token):
     text: str
     style: str
     scale_data: str
 
 
-class UpscaleImage(BaseModel):
+class UpscaleImage(Token):
     image_name: str
     scale_data: str

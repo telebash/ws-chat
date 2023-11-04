@@ -3,7 +3,7 @@ import asyncio
 from loguru import logger
 
 from dispatcher import AsyncDispatcher
-from handlers import post, image, theme, user
+from handlers import post, image, theme, user, message, projects
 from services.utils import get_event_body
 
 REQUEST_HANDLED = {"statusCode": 200}
@@ -14,6 +14,8 @@ post.register(dp)
 image.register(dp)
 theme.register(dp)
 user.register(dp)
+message.register(dp)
+projects.register(dp)
 
 
 def connection_manager(event, context):
