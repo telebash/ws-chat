@@ -1,12 +1,11 @@
 import os
 import logging
 # import sentry_sdk
-from typing import Any
+from typing import Any, List, Union
 
 # from sentry_sdk.integrations.logging import LoggingIntegration
 from dotenv import load_dotenv
-from pydantic import BaseSettings, PostgresDsn
-
+from pydantic import BaseSettings, PostgresDsn, AnyHttpUrl
 
 load_dotenv()
 
@@ -36,7 +35,10 @@ def get_env_value(key: str, default: Any = None) -> str:
 class Settings(BaseSettings):
     """Настройки приложения"""
     class Config:
-        env_file = ".env"
+        env_file = "../.env"
+
+    API_V1_STR: str = "/default/api/v1"
+    BACKEND_CORS_ORIGINS: List[Union[AnyHttpUrl, str]] = ['*']
 
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 1  # 1 day 
     REFRESH_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7  # 7 days

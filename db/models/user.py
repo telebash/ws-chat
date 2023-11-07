@@ -13,7 +13,6 @@ class User(BaseModel, TimestampModel):
     email = Column(String, unique=True, index=True)
     password = Column(String, nullable=False)
 
-    active_project = Column(Integer, default=None)
     projects = relationship("Project", back_populates="user")
     # free_use = Column(Integer, default=5)
     # free_use_bool = Column(Boolean, default=True)

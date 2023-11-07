@@ -7,7 +7,7 @@ from jose import jwt
 from loguru import logger
 
 from services.utils import send_to_connection
-from settings import settings
+from core.config import settings
 
 
 def hash_password(password: str) -> str:
@@ -21,7 +21,7 @@ def verify_password(password: str, hashed_password: str) -> bool:
     return bcrypt.checkpw(password.encode('utf-8'), hashed_password.encode('utf-8'))
 
 
-def create_access_token(subject: Union[str, Any], expires_delta: int = None) -> str:
+def create_access_token(subject: Union[str, Any], expires_delta: timedelta = None) -> str:
     if expires_delta is not None:
         expires_delta = datetime.utcnow() + expires_delta
     else:
@@ -32,7 +32,7 @@ def create_access_token(subject: Union[str, Any], expires_delta: int = None) -> 
     return encoded_jwt
 
 
-def create_refresh_token(subject: Union[str, Any], expires_delta: int = None) -> str:
+def create_refresh_token(subject: Union[str, Any], expires_delta: timedelta = None) -> str:
     if expires_delta is not None:
         expires_delta = datetime.utcnow() + expires_delta
     else:
@@ -52,7 +52,7 @@ def decode_access_token(token: str):
             options={"verify_aud": False},
         )
         if payload.get("type") != "access_token":
-            raise Exception("Token is not a refresh token")
+            raise Exception("Token is not a access token")
         return payload.get("sub")
     except jwt.ExpiredSignatureError:
         raise Exception("Token expired")
@@ -78,10 +78,9 @@ def decode_refresh_token(token: str):
 
 
 async def auth_check_and_get_user(connection_id: str, command: str, token: str):
-    from services.user import get_username_by_token, get_user_by_username
-
+    from services.user import get_user_by_username
     try:
-        username = get_username_by_token(token, 'access_token')
+        username = decode_access_token(token)
         user = await get_user_by_username(username)
     except Exception as e:
         error_info = traceback.format_exc()

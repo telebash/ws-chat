@@ -16,19 +16,22 @@ class GetMessages(Token):
 
 class SaveMessageBase(BaseModel):
     type: MessageTypeEnum
-    chat: ChatEnum
     sender: SenderEnum
     data: str
     datetime: python_datetime
-    project_id: int
+    post_id: Optional[int] = None
+    image_id: Optional[int] = None
 
     class Config:
         orm_mode = True
 
 
-class SaveMessage(SaveMessageBase, Token):
-    pass
+class SaveMessage(SaveMessageBase):
+    chat: ChatEnum
+    project_id: int
 
 
-class SaveMessages(Token):
+class SaveMessages(BaseModel):
     messages: list[SaveMessageBase]
+    chat: ChatEnum
+    project_id: int

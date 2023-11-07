@@ -7,14 +7,14 @@ from schemas.token import Token
 
 class PostBase(BaseModel):
     theme: Optional[str] = None
-    project: Optional[str] = None
+    niche: Optional[str] = None
     text_style: Optional[str] = None
 
 
 class PostCreate(Token):
     theme: str
-    project: str
     text_style: str
+    niche: str
 
 
 class PostUpdate(PostBase):

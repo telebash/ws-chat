@@ -11,7 +11,7 @@ from ipaddress import IPv4Address, IPv4Interface, IPv4Network, IPv6Address, IPv6
 from pathlib import PurePath, Path
 from re import Pattern
 from types import GeneratorType
-from typing import Any, Dict, List, Literal, Callable, Type, Union, Tuple
+from typing import Any, Dict, List, Literal, Callable, Type, Union, Tuple, BinaryIO
 from decimal import Decimal
 from pydantic import BaseModel, NameEmail, SecretBytes, SecretStr, AnyUrl
 from pydantic.color import Color
@@ -19,7 +19,7 @@ from pydantic.version import VERSION as PYDANTIC_VERSION
 import boto3
 from pydantic_core import Url
 
-from settings import settings
+from core.config import settings
 
 
 def get_event_body(event) -> dict:
@@ -47,6 +47,13 @@ def send_to_connection(connection_id, data):
 
 def generate_image_name() -> str:
     return str(uuid.uuid4()) + '.png'
+
+
+def upload_s3_file(filename, file: BinaryIO) -> str:
+    s3 = boto3.client('s3')
+    bucket_name = settings.BUCKET_NAME
+    s3.upload_fileobj(file, bucket_name, filename)
+    return f'https://{bucket_name}.s3.amazonaws.com/{filename}'
 
 
 def upload_s3_image_base64(connection_id, image_name, image_base64: str) -> str:

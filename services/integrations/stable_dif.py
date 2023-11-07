@@ -4,7 +4,7 @@ from typing import Any
 import aiohttp
 import requests
 
-from settings import settings
+from core.config import settings
 from services import ImageStyles, IMAGES_STYLES_REPLICATE
 
 from services.base.base import BaseService

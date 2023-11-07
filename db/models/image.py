@@ -13,5 +13,5 @@ class Image(BaseModel, TimestampModel):
     seed = Column(BigInteger)
     prompt = Column(Text)
 
-    project_id = Column(Integer, ForeignKey('project.id', ondelete='SET NULL'))
-    project = relationship('Project', back_populates='images')
+    # project_id = Column(Integer, ForeignKey('project.id', ondelete='SET NULL'))
+    # project = relationship('Project', back_populates='images')

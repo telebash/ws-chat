@@ -37,11 +37,3 @@ async def get_user_by_email(email: str) -> Union[User | None]:
     user = user.scalars().first()
     await db.close()
     return user
-
-
-def get_username_by_token(token: str, token_type: str) -> str:
-    if token_type == "access_token":
-        username = decode_access_token(token)
-    else:
-        username = decode_refresh_token(token)
-    return username

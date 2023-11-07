@@ -8,10 +8,9 @@ from schemas.token import Token
 class ProjectBase(BaseModel):
     name: Optional[str] = None
     description: Optional[str] = None
-    image_url: Optional[str] = None
 
 
-class ProjectCreate(ProjectBase, Token):
+class ProjectCreate(ProjectBase):
     name: str
     description: Optional[str] = None
-    image_url: Optional[str] = None
+    niche: str

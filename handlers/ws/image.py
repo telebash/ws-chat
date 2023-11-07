@@ -4,17 +4,25 @@ from loguru import logger
 
 from dispatcher import AsyncDispatcher
 from schemas.image import UpscaleImage, CreateImage
-from services.chat_gpt import get_image_from_replicate, get_image_from_stability, \
-    get_prompt_for_sd_from_chat_gpt, get_upscale_image_from_stable_diffusion
+from services.auth import auth_check_and_get_user
+from services.chat_gpt import (
+    get_image_from_replicate, get_image_from_stability,
+    get_prompt_for_sd_from_chat_gpt, get_upscale_image_from_stable_diffusion, get_random_seed,
+)
+from services.image import create_image
 from services.utils import send_to_connection, upload_s3_image_base64, generate_image_name
 
 
 async def create_image_handler(connection_id, data: CreateImage):
+    command = 'create_image'
+    await auth_check_and_get_user(connection_id, command, data.token)
     sd_prompt = await get_prompt_for_sd_from_chat_gpt(connection_id, data.text)
     logger.info(sd_prompt)
+    seed = get_random_seed()
     image_base64, image_url = await get_image_from_replicate(
         sd_prompt,
         style=data.style,
+        seed=seed,
         scale_data=data.scale_data
     )
 
@@ -28,7 +36,7 @@ async def create_image_handler(connection_id, data: CreateImage):
         except Exception as e:
             error_info = traceback.format_exc()
             message_for_user = {
-                'command': 'create_image',
+                'command': command,
                 'status': 'error',
                 'body': 'Серверы нагружены. Попробуйте позднее'
             }
@@ -39,10 +47,13 @@ async def create_image_handler(connection_id, data: CreateImage):
     image_name = generate_image_name()
     image_url = upload_s3_image_base64(connection_id, image_name, image_base64)
 
+    image_obj = await create_image(image_url, data.style, seed, sd_prompt)
+
     message = {
-        'command': 'create_image',
+        'command': command,
         'status': 'success',
         'body': image_url,
+        'image_id': image_obj.id
     }
 
     send_to_connection(connection_id, message)
@@ -50,6 +61,8 @@ async def create_image_handler(connection_id, data: CreateImage):
 
 async def upscale_image_handler(connection_id, data: UpscaleImage):
     logger.info('Start Upscale Image')
+    command = 'upscale_image'
+    await auth_check_and_get_user(connection_id, command, data.token)
     image_base64, image_url = await get_upscale_image_from_stable_diffusion(
         connection_id,
         data.image_name,
@@ -60,7 +73,7 @@ async def upscale_image_handler(connection_id, data: UpscaleImage):
     image_url = upload_s3_image_base64(connection_id, image_name, image_base64)
 
     message = {
-        'command': 'upscale_image',
+        'command': command,
         'status': 'success',
         'body': image_url,
     }

@@ -13,12 +13,13 @@ async def get_projects(user_id: int):
     return projects
 
 
-async def create_project(user_id, project: ProjectCreate):
+async def create_project(user_id, project: ProjectCreate, image_url):
     db = Session()
     project_obj = Project(
         name=project.name,
         description=project.description,
-        image_url=project.image_url,
+        niche=project.niche,
+        image_url=image_url,
         user_id=user_id
     )
     db.add(project_obj)

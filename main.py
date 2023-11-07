@@ -1,10 +1,16 @@
 import asyncio
 
+from fastapi import FastAPI
 from loguru import logger
+from mangum import Mangum
+from starlette.middleware.cors import CORSMiddleware
 
 from dispatcher import AsyncDispatcher
-from handlers import post, image, theme, user, message, projects
+from handlers.api.v1.api import api_router as api_v1
+from handlers.ws import post, image
+# from handlers.ws import post, image, projects, message, theme, user
 from services.utils import get_event_body
+from core.config import settings
 
 REQUEST_HANDLED = {"statusCode": 200}
 
@@ -12,10 +18,33 @@ dp = AsyncDispatcher()
 
 post.register(dp)
 image.register(dp)
-theme.register(dp)
-user.register(dp)
-message.register(dp)
-projects.register(dp)
+# theme.register(dp)
+# user.register(dp)
+# message.register(dp)
+# projects.register(dp)
+
+app = FastAPI(openapi_prefix='/default/')
+mangum_handler = Mangum(app)
+
+if settings.BACKEND_CORS_ORIGINS:
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=[str(origin) for origin in settings.BACKEND_CORS_ORIGINS],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"]
+    )
+
+app.include_router(api_v1, prefix=settings.API_V1_STR)
+
+# @app.middleware("http")
+# def add_process_time_header(request: Request, call_next):
+#     print('request.url.path: ', request.url.path)
+#     if 'default' not in request.url.path:
+#         request.scope['path'] = '/default' + request.url.path
+#         print('request.scope[path]: ', request.scope['path'])
+#         print('middleware: url changed')
+#     return call_next(request)
 
 
 def connection_manager(event, context):
@@ -40,10 +69,14 @@ async def handle_incoming_ws_message(event, context):
     logger.info(command)
     logger.info(data)
     await dp.trigger_event(command, connection_id, **data)
+    return REQUEST_HANDLED
 
 
 def handler(event, context):
-    route_key = event["requestContext"]["routeKey"]
+    route_key = event["requestContext"].get("routeKey", None)
+
+    if route_key is None:
+        return mangum_handler(event, context)
 
     if route_key == "$connect" or route_key == "$disconnect":
         connection_manager(event, context)

@@ -1,7 +1,7 @@
 import openai
 import requests
 from typing import Any
-from settings import settings
+from core.config import settings
 
 
 class ChatGpt4Service:

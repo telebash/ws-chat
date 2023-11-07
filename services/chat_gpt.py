@@ -231,7 +231,7 @@ async def answer_the_question(message, state, theme: str, niche_name: str, answe
     return answer
 
 
-async def get_post_from_chat_gpt(connection_id, theme: str, project: str, text_style, text_size='small') -> str:
+async def get_post_from_chat_gpt(connection_id, theme: str, niche: str, text_style, text_size='small') -> str:
     logger.info('Create Post flow')
     date_prefix = get_date_prefix()
     if text_size == 'big':
@@ -241,7 +241,7 @@ async def get_post_from_chat_gpt(connection_id, theme: str, project: str, text_s
     prompt = ChatPrompts.CREATE_POST.value.format(
         date_prefix=date_prefix,
         theme=theme,
-        specialization=project,
+        specialization=niche,
         text_style=text_style,
         text_size_prompt=text_size_prompt
     )

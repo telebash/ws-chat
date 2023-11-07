@@ -6,7 +6,7 @@ from decimal import Decimal
 from sqlalchemy.ext.asyncio import create_async_engine, async_scoped_session, AsyncSession
 from sqlalchemy.orm import sessionmaker
 
-from settings import settings
+from core.config import settings
 
 
 def json_encoder(val):
