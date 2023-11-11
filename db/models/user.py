@@ -38,11 +38,11 @@ class User(BaseModel, TimestampModel):
         if paid_date is not None:
             self.subscription_date = paid_date
         await session.commit()
-    #
-    # @property
-    # def is_admin_user(self):
-    #     return self.username in [
-    #         'zephyr_er', 'X3gxu', 'Nowayanna', 'murza_design',
-    #         'Rocky_Raccoon', 'Asselie', 'rasult22js', 'abaibolsai',
-    #         'alimzhan'
-    #     ]
+
+    @property
+    def is_admin_user(self):
+        return self.username in [
+            'zephyr_er', 'X3gxu', 'Nowayanna', 'murza_design',
+            'Rocky_Raccoon', 'Asselie', 'rasult22js', 'abaibolsai',
+            'alimzhan', 'string'
+        ]

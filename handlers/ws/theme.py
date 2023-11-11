@@ -22,7 +22,7 @@ async def create_theme_handler(connection_id, data: CreateTheme):
         }
         send_to_connection(connection_id, message)
         return
-    elif user.free_use_bool and not await user_created_at_checker(user):
+    elif not await user_created_at_checker(user):
         logger.info('User has free use')
         message = {
             'command': command,

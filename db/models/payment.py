@@ -1,4 +1,3 @@
-from pydantic import BaseModel
 from sqlalchemy import (
     Column,
     DateTime,
@@ -9,7 +8,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import relationship
 
-from db.models.base import TimestampModel
+from db.models.base import BaseModel, TimestampModel
 
 
 class Payment(BaseModel, TimestampModel):
