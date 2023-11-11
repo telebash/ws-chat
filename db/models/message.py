@@ -6,6 +6,7 @@ from sqlalchemy import (
     String,
     DateTime,
     ForeignKey,
+    func,
 )
 from sqlalchemy.dialects.postgresql import ENUM
 from sqlalchemy.orm import relationship, backref
@@ -37,7 +38,7 @@ class Message(BaseModel):
     chat = Column(ENUM(ChatEnum))
     sender = Column(ENUM(SenderEnum))
     data = Column(String)
-    datetime = Column(DateTime)
+    datetime = Column(DateTime(timezone=True), default=func.now())
     post_id = Column(Integer, ForeignKey('post.id', ondelete='SET NULL'))
     post = relationship('Post', backref=backref('message', uselist=False))
     image_id = Column(Integer, ForeignKey('image.id', ondelete='SET NULL'))

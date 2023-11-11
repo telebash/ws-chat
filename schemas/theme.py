@@ -4,5 +4,5 @@ from schemas.token import Token
 
 
 class CreateTheme(Token):
-    project: str
+    niche: str
     text_style: str

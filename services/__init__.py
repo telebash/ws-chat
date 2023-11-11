@@ -169,7 +169,7 @@ class ChatPrompts(Enum):
     LIST_OF_QUESTIONS = "Дайте мне список ваших вопросов, каждый на новой строке"
 
 
-class ImageStyles(Enum):
+class ImageStyles(str, Enum):
     THREED_MODEL = "3d-model"
     ANALOG_FILM = "analog-film"
     ANIME = "anime"

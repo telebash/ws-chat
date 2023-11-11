@@ -1,3 +1,4 @@
+from loguru import logger
 from fastapi import APIRouter, Depends, HTTPException
 
 from handlers.api.deps import get_current_user
@@ -37,6 +38,7 @@ async def save_messages_router(data: SaveMessages, user: User = Depends(get_curr
     try:
         await save_messages(data)
     except Exception as e:
+        logger.error(e)
         raise HTTPException(status_code=500, detail='Error saving messages')
 
     return {

@@ -7,7 +7,7 @@ from starlette.middleware.cors import CORSMiddleware
 
 from dispatcher import AsyncDispatcher
 from handlers.api.v1.api import api_router as api_v1
-from handlers.ws import post, image
+from handlers.ws import post, image, theme
 # from handlers.ws import post, image, projects, message, theme, user
 from services.utils import get_event_body
 from core.config import settings
@@ -18,7 +18,7 @@ dp = AsyncDispatcher()
 
 post.register(dp)
 image.register(dp)
-# theme.register(dp)
+theme.register(dp)
 # user.register(dp)
 # message.register(dp)
 # projects.register(dp)

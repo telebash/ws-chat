@@ -40,7 +40,8 @@ class Settings(BaseSettings):
     API_V1_STR: str = "/default/api/v1"
     BACKEND_CORS_ORIGINS: List[Union[AnyHttpUrl, str]] = ['*']
 
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 1  # 1 day 
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 15  # 1 day
+    # ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 1  # 1 day
     REFRESH_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7  # 7 days
 
     ALGORITHM: str = "HS256"
