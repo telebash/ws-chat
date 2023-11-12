@@ -19,7 +19,7 @@ async def create_image_handler(connection_id, data: CreateImage):
     user = await auth_check_and_get_user(connection_id, command, data.token)
 
     user = await subscription_checker(user)
-    if not user.free_use_bool and not user.paid:
+    if not user.paid:
         logger.info('User does not have subscription')
         message = {
             'command': command,
