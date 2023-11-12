@@ -203,7 +203,7 @@ IMAGES_STYLES_REPLICATE = {
         "negative_prompt": "photo, deformed, black and white, realism, disfigured, low contrast"
     },
     "cinematic": {
-        "prompt": "cinematic film still {}. shallow depth of field, vignette, highly detailed, high budget, bokeh, cinemascope, moody, epic, gorgeous, film grain, grainy",
+        "prompt": "cinematic film still {prompt}. shallow depth of field, vignette, highly detailed, high budget, bokeh, cinemascope, moody, epic, gorgeous, film grain, grainy",
         "negative_prompt": "anime, cartoon, graphic, text, painting, crayon, graphite, abstract, glitch, deformed, mutated, ugly, disfigured"
     },
     "comic-book": {

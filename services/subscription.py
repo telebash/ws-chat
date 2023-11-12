@@ -27,16 +27,15 @@ async def subscription_checker(user: User):
     return user
 
 
-async def user_created_at_checker(user: User):
+def user_trial_checker(user: User):
     if user.is_admin_user:
-        return user
+        return True
     current_date = datetime.now()
     created_at = user.created_at
-    creat_duration = relativedelta(days=7)
-    creat_expiry_date = created_at + creat_duration
+    create_duration = relativedelta(days=7)
+    create_expiry_date = created_at + create_duration
 
-    if current_date > creat_expiry_date:
-        await user.update(session=Session(), free_use_bool=False)
-        return None
+    if current_date > create_expiry_date:
+        return False
 
-    return user
+    return True
