@@ -33,7 +33,7 @@ async def create_theme_handler(connection_id, data: CreateTheme):
         send_to_connection(connection_id, message)
         return
 
-    themes = await get_themes_from_chat_gpt(connection_id, data.project, data.text_style)
+    themes = await get_themes_from_chat_gpt(connection_id, data.niche, data.text_style)
     message = {
         'type': 'themes',
         'body': themes,
