@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from loguru import logger
 
 from dispatcher import AsyncDispatcher
@@ -19,23 +21,17 @@ async def create_theme_handler(connection_id, data: CreateTheme):
         message = {
             'command': command,
             'status': 'error',
-            'body': 'Subscription expired'
-        }
-        send_to_connection(connection_id, message)
-        return
-    if not is_trial:
-        logger.info('User has not free use')
-        message = {
-            'command': command,
-            'status': 'error',
-            'body': 'Trial expired'
+            'body': 'Subscription or trial expired'
         }
         send_to_connection(connection_id, message)
         return
 
     themes = await get_themes_from_chat_gpt(connection_id, data.niche, data.text_style)
+    timestamp = datetime.now().timestamp()
     message = {
-        'type': 'themes',
+        'generation_id': timestamp,
+        'command': command,
+        'status': 'success',
         'body': themes,
     }
     send_to_connection(connection_id, message)

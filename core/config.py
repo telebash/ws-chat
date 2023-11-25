@@ -39,10 +39,9 @@ class Settings(BaseSettings):
 
     API_V1_STR: str = "/default/api/v1"
     BACKEND_CORS_ORIGINS: List[Union[AnyHttpUrl, str]] = ['*']
+    DOMAIN: str
 
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 15  # 1 day
-    # ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 1  # 1 day
-    REFRESH_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7  # 7 days
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30  # 30 minutes
 
     ALGORITHM: str = "HS256"
     JWT_SECRET_KEY: str = os.environ['JWT_SECRET_KEY']
@@ -51,38 +50,46 @@ class Settings(BaseSettings):
     WS_ENDPOINT: str = os.environ['WEBSOCKET_API_ENDPOINT']
     BUCKET_NAME: str = os.environ['BUCKET_NAME']
 
+    CP_PUBLIC_ID: str = os.environ['CP_PUBLIC_ID']
+    CP_SECRET_KEY: str = os.environ['CP_SECRET_KEY']
+
     DATABASE_PASSWORD: str = get_env_value('DATABASE_PASSWORD')
     DATABASE_USERNAME: str = get_env_value('DATABASE_USERNAME')
     DATABASE_NAME: str = get_env_value('DATABASE_NAME')
     DATABASE_HOST: str = get_env_value('DATABASE_HOST')
     DATABASE_PORT: int = 5432
 
-    BOT_TOKEN = get_env_value('BOT_TOKEN')
-    TELEGRAM_BOT_URL = get_env_value('TELEGRAM_BOT_URL')
-    PAYMENT_TOKEN = get_env_value('PAYMENT_TOKEN')
+    PAYMENT_TOKEN: str = get_env_value('PAYMENT_TOKEN')
 
-    OPENAI_URL = get_env_value('OPENAI_URL', 'https://api.openai.com')
-    OPENAI_TOKEN = get_env_value('OPENAI_TOKEN')
+    OPENAI_URL: str = get_env_value('OPENAI_URL', 'https://api.openai.com')
+    OPENAI_TOKEN: str = get_env_value('OPENAI_TOKEN')
 
-    STABLE_API = get_env_value('STABLE_API', 'http://13.53.66.48:7861')
+    STABLE_API: str = get_env_value('STABLE_API', 'http://13.53.66.48:7861')
 
-    STABILITY_AI_API = get_env_value('STABILITY_API', 'https://api.stability.ai')
-    STABILITY_API_KEY = get_env_value('STABILITY_API_KEY')
+    STABILITY_AI_API: str = get_env_value('STABILITY_API', 'https://api.stability.ai')
+    STABILITY_API_KEY: str = get_env_value('STABILITY_API_KEY')
 
-    REPLICATE_API_TOKEN = get_env_value('REPLICATE_API_TOKEN')
-    REPLICATE_API = os.getenv('REPLICATE_API', 'https://api.replicate.com/')
+    REPLICATE_API_TOKEN: str = get_env_value('REPLICATE_API_TOKEN')
+    REPLICATE_API: str = os.getenv('REPLICATE_API', 'https://api.replicate.com/')
 
-    REDIS_HOST: str = get_env_value('REDIS_HOST')
-    REDIS_PORT: int = int(get_env_value('REDIS_PORT'))
-    REDIS_PASSWORD: str | None = redis_password if (redis_password := get_env_value('REDIS_PASSWORD', '')) else None
-    REDIS_SSL: bool = get_env_value('REDIS_SSL', False) == 'True'
+    REDIS_HOST: str
+    REDIS_PORT: int
+    REDIS_PASSWORD: str
+    REDIS_SSL: bool
 
     DATABASE_URL: PostgresDsn | None = None
     SYNC_DATABASE_URL: PostgresDsn | None = None
-    WORKERS = 3
-    PORT = 8000
-    CURRENCY = 'kzt'
-    SUBSCRIPTION_AMOUNT = 2000000
+    WORKERS: int = 3
+    PORT: int = 8000
+    CURRENCY: str = 'kzt'
+    SUBSCRIPTION_AMOUNT: int = 2000000
+
+    MAIL_USERNAME: str
+    MAIL_PASSWORD: str
+    MAIL_FROM: str
+    MAIL_PORT: str
+    MAIL_SERVER: str
+    MAIL_FROM_NAME: str
 
     def _build_database_url(self):
         return f"{self.DATABASE_USERNAME}:{self.DATABASE_PASSWORD}@{self.DATABASE_HOST}:{self.DATABASE_PORT}/{self.DATABASE_NAME}"

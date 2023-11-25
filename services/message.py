@@ -55,6 +55,6 @@ async def save_message(data: SaveMessage) -> None:
         datetime=data.datetime,
         project_id=data.project_id
     )
-    db.add_all(model)
+    db.add(model)
     await db.flush()
     await db.commit()

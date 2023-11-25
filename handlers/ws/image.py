@@ -1,4 +1,5 @@
 import traceback
+from datetime import datetime
 
 from loguru import logger
 
@@ -25,16 +26,7 @@ async def create_image_handler(connection_id, data: CreateImage):
         message = {
             'command': command,
             'status': 'error',
-            'body': 'Subscription expired'
-        }
-        send_to_connection(connection_id, message)
-        return
-    if not is_trial:
-        logger.info('User has not free use')
-        message = {
-            'command': command,
-            'status': 'error',
-            'body': 'Trial expired'
+            'body': 'Subscription or trial expired'
         }
         send_to_connection(connection_id, message)
         return
@@ -68,11 +60,25 @@ async def create_image_handler(connection_id, data: CreateImage):
             raise e
 
     image_name = generate_image_name()
-    image_url = upload_s3_image_base64(connection_id, image_name, image_base64)
+
+    try:
+        image_url = upload_s3_image_base64(image_name, image_base64)
+    except Exception as e:
+        error_info = traceback.format_exc()
+        message_for_user = {
+            'command': command,
+            'status': 'error',
+            'body': 'Произошла ошибка.'
+        }
+        send_to_connection(connection_id, message_for_user)
+        message_for_log = message_for_user['body'] + '\n' + error_info
+        raise e
 
     image_obj = await create_image(image_url, data.style, seed, sd_prompt)
+    timestamp = datetime.now().timestamp()
 
     message = {
+        'generation_id': timestamp,
         'command': command,
         'status': 'success',
         'body': image_url,
@@ -114,7 +120,19 @@ async def upscale_image_handler(connection_id, data: UpscaleImage):
     )
 
     image_name = generate_image_name()
-    image_url = upload_s3_image_base64(connection_id, image_name, image_base64)
+
+    try:
+        image_url = upload_s3_image_base64(image_name, image_base64)
+    except Exception as e:
+        error_info = traceback.format_exc()
+        message_for_user = {
+            'command': command,
+            'status': 'error',
+            'body': 'Произошла ошибка.'
+        }
+        send_to_connection(connection_id, message_for_user)
+        message_for_log = message_for_user['body'] + '\n' + error_info
+        raise e
 
     message = {
         'command': command,

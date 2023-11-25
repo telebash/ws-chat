@@ -1,22 +1,25 @@
 import base64
 import dataclasses
+import datetime
+import io
 import json
 import logging
 import traceback
 import uuid
 from collections import deque, defaultdict
-import datetime
+from decimal import Decimal
 from enum import Enum
 from ipaddress import IPv4Address, IPv4Interface, IPv4Network, IPv6Address, IPv6Interface, IPv6Network
 from pathlib import PurePath, Path
 from re import Pattern
 from types import GeneratorType
-from typing import Any, Dict, List, Literal, Callable, Type, Union, Tuple, BinaryIO
-from decimal import Decimal
+from typing import Any, Dict, List, Literal, Callable, Type, Union, Tuple
+
+import boto3
+from loguru import logger
 from pydantic import BaseModel, NameEmail, SecretBytes, SecretStr, AnyUrl
 from pydantic.color import Color
 from pydantic.version import VERSION as PYDANTIC_VERSION
-import boto3
 from pydantic_core import Url
 
 from core.config import settings
@@ -49,32 +52,25 @@ def generate_image_name() -> str:
     return str(uuid.uuid4()) + '.png'
 
 
-def upload_s3_file(filename, file: BinaryIO) -> str:
+def upload_s3_file(filename, file) -> str:
     s3 = boto3.client('s3')
-    bucket_name = settings.BUCKET_NAME
-    s3.upload_fileobj(file, bucket_name, filename)
-    return f'https://{bucket_name}.s3.amazonaws.com/{filename}'
+    try:
+        s3.put_object(Body=file, Bucket=settings.BUCKET_NAME, Key=filename)
+    except Exception as e:
+        logger.error(e)
+        raise e
+    return f'https://s3-eu-north-1.amazonaws.com/{settings.BUCKET_NAME}/{filename}'
 
 
-def upload_s3_image_base64(connection_id, image_name, image_base64: str) -> str:
+def upload_s3_image_base64(image_name, image_base64: str) -> str:
     s3 = boto3.client('s3')
     bucket_name = settings.BUCKET_NAME
 
     image_bytes = base64.b64decode(image_base64.encode())
 
-    try:
-        s3.put_object(Body=image_bytes, Bucket=bucket_name, Key=image_name)
-    except Exception as e:
-        error_info = traceback.format_exc()
-        message_for_user = {
-            'type': 'error',
-            'body': 'Произошла ошибка.'
-        }
-        send_to_connection(connection_id, message_for_user)
-        message_for_log = message_for_user['body'] + '\n' + error_info
-        raise e
+    s3.put_object(Body=image_bytes, Bucket=bucket_name, Key=image_name)
 
-    return f'https://{bucket_name}.s3.amazonaws.com/{image_name}'
+    return f'https://s3-eu-north-1.amazonaws.com/{bucket_name}/{image_name}'
 
 
 def get_s3_image_bytes(connection_id, image_name) -> bytes:
@@ -158,7 +154,7 @@ def _model_dump(
 
 
 def generate_encoders_by_class_tuples(
-    type_encoder_map: Dict[Any, Callable[[Any], Any]]
+        type_encoder_map: Dict[Any, Callable[[Any], Any]]
 ) -> Dict[Callable[[Any], Any], Tuple[Any, ...]]:
     encoders_by_class_tuples: Dict[Callable[[Any], Any], Tuple[Any, ...]] = defaultdict(
         tuple

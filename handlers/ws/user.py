@@ -15,7 +15,6 @@ from services.utils import send_to_connection
 from services.auth import (
     verify_password,
     create_access_token,
-    create_refresh_token,
     auth_check_and_get_user,
 )
 
@@ -78,7 +77,6 @@ async def login_handler(connection_id, data: UserLogin):
                 "email": user.email,
             },
             "access_token": create_access_token(user.username),
-            "refresh_token": create_refresh_token(user.username),
         }
     }
     send_to_connection(connection_id, message)
@@ -107,8 +105,7 @@ async def update_token_handler(connection_id, data: Token):
         'command': command,
         'status': 'success',
         'body': {
-            "access_token": create_access_token(user.username),
-            "refresh_token": create_refresh_token(user.username),
+            "access_token": create_access_token(user.username)
         }
     }
     send_to_connection(connection_id, message)

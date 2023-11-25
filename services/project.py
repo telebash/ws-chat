@@ -1,3 +1,4 @@
+from loguru import logger
 from sqlalchemy import select
 
 from db import Session, Project
@@ -11,6 +12,50 @@ async def get_projects(user_id: int):
     projects = projects.scalars().all()
     await db.close()
     return projects
+
+
+async def get_project(id: int):
+    db = Session()
+    project = await db.get(Project, id)
+    await db.close()
+    return project
+
+
+async def favourite_project(id: int, user_id: int):
+    db = Session()
+    project = await db.get(Project, id)
+    if not project or project.user_id != user_id:
+        return False
+    result = not project.is_favourite
+    project.is_favourite = result
+    db.add(project)
+    await db.commit()
+    await db.refresh(project)
+    await db.close()
+    return result
+
+
+async def update_logo_project(id: int, user_id: int, logo_url: str):
+    db = Session()
+    project = await db.get(Project, id)
+    if not project or project.user_id != user_id:
+        return False
+    project.image_url = logo_url
+    db.add(project)
+    await db.commit()
+    await db.close()
+    return project
+
+
+async def delete_project(id: int, user_id: int):
+    db = Session()
+    project = await db.get(Project, id)
+    if not project or project.user_id != user_id:
+        return False
+    await db.delete(project)
+    await db.commit()
+    await db.close()
+    return True
 
 
 async def create_project(user_id, project: ProjectCreate, image_url):

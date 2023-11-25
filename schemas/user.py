@@ -7,7 +7,6 @@ class UserBase(BaseModel):
     username: Optional[str] = None
     email: Optional[EmailStr] = None
     password: Optional[str] = None
-    image_url: Optional[str] = None
 
 
 class UserCreate(UserBase):
@@ -19,6 +18,30 @@ class UserCreate(UserBase):
 class UserLogin(BaseModel):
     username_or_email: str
     password: str
+
+
+class UserForgotPassword(BaseModel):
+    email: EmailStr
+
+
+class UserNewPassword(BaseModel):
+    otp: str
+    email: EmailStr
+    password: str
+
+
+class UserSendVerify(BaseModel):
+    email: EmailStr
+
+
+class UserVerifyEmail(BaseModel):
+    email: EmailStr
+    otp: str
+
+
+class UserChangePassword(BaseModel):
+    old_password: str
+    new_password: str
 
 
 class UserUpdate(UserBase):

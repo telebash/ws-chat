@@ -6,3 +6,4 @@ from db.models.projects import Project
 from db.models.prompt import Prompts
 from db.models.message import Message
 from db.models.payment import Payment
+from db.models.otp import Otp

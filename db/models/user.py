@@ -9,15 +9,18 @@ from db.models.base import BaseModel, TimestampModel
 
 class User(BaseModel, TimestampModel):
     id = Column(Integer, primary_key=True)
+    image_url = Column(String, nullable=True, default=None)
     username = Column(String, nullable=False, unique=True, index=True)
     email = Column(String, unique=True, index=True)
     password = Column(String, nullable=False)
+    is_active = Column(Boolean, default=False)
+    otps = relationship("Otp", back_populates="user")
     projects = relationship("Project", back_populates="user")
     paid = Column(Boolean, default=False)
     subscription_date = Column(DateTime)
     payments = relationship("Payment", back_populates="user", order_by="Payment.created_at.desc()")
     # free_use = Column(Integer, default=5)
-    # free_use_bool = Column(Boolean, default=True)
+    is_trial = Column(Boolean, default=True)
     # plus_3_days = Column(Boolean, default=False)
     # promo_code = relationship("PromoCode", back_populates="user", uselist=False)
     #

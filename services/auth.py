@@ -5,7 +5,6 @@ from typing import Union, Any
 import bcrypt
 from jose import jwt
 from loguru import logger
-
 from services.utils import send_to_connection
 from core.config import settings
 

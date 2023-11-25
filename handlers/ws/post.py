@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Any
 
 from loguru import logger
@@ -22,16 +23,7 @@ async def create_post_handler(connection_id: str, data: PostCreate):
         message = {
             'command': command,
             'status': 'error',
-            'body': 'Subscription expired'
-        }
-        send_to_connection(connection_id, message)
-        return
-    if not is_trial:
-        logger.info('User has not free use')
-        message = {
-            'command': command,
-            'status': 'error',
-            'body': 'Trial expired'
+            'body': 'Subscription or trial expired'
         }
         send_to_connection(connection_id, message)
         return
@@ -42,7 +34,9 @@ async def create_post_handler(connection_id: str, data: PostCreate):
         data.niche,
         data.text_style
     )
+    timestamp = datetime.now().timestamp()
     message = {
+        'generation_id': timestamp,
         'command': command,
         'status': 'process',
         'body': '',

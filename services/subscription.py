@@ -1,8 +1,24 @@
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
+from sqlalchemy import select
+
+from db import Payment
 from db.engine import Session
 
 from db.models.user import User
+
+
+async def create_payment(user_id: int, currency: str, total_amount: int):
+    db = Session()
+    payment = Payment(
+        user_id=user_id,
+        currency=currency,
+        total_amount=total_amount,
+    )
+    db.add(payment)
+    await db.flush()
+    await db.commit()
+    return payment
 
 
 async def subscription_checker(user: User):
@@ -12,12 +28,16 @@ async def subscription_checker(user: User):
         return user
     current_date = datetime.now()
     subscription_date = user.subscription_date
-    payment = user.payments[0]
-    if payment.total_amount == 200000:
+    db = Session()
+    query = select(Payment).where(Payment.user_id == user.id).order_by(Payment.created_at.desc())
+    payment = await db.execute(query)
+    payment = payment.scalars().first()
+    await db.close()
+    if payment.total_amount == 2000:
         subscription_duration = relativedelta(days=1)
-    elif payment.total_amount == 1000000:
+    elif payment.total_amount == 10000:
         subscription_duration = relativedelta(days=7)
-    elif payment.total_amount == 2000000:
+    elif payment.total_amount == 20000:
         subscription_duration = relativedelta(months=1)
     subscription_expiry_date = subscription_date + subscription_duration
 
