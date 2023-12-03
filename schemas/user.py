@@ -1,6 +1,6 @@
 from typing import Optional
 
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, constr, validator
 
 
 class UserBase(BaseModel):
@@ -12,7 +12,20 @@ class UserBase(BaseModel):
 class UserCreate(UserBase):
     username: str
     email: EmailStr
-    password: str
+    password: constr(min_length=8)
+
+    @validator('password')
+    def password_validation(cls, value):
+        value = str(value)
+        if len(value) < 8:
+            raise ValueError("Password must have at least 8 characters")
+        if not any(c.isupper() for c in value):
+            raise ValueError("Password must have at least one uppercase letter")
+        if not any(c.islower() for c in value):
+            raise ValueError("Password must have at least one lowercase letter")
+        if not any(c.isdigit() for c in value):
+            raise ValueError("Password must have at least one digit")
+        return value
 
 
 class UserLogin(BaseModel):

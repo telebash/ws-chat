@@ -42,6 +42,7 @@ class Settings(BaseSettings):
     DOMAIN: str
 
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30  # 30 minutes
+    REFRESH_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7  # 1 week
 
     ALGORITHM: str = "HS256"
     JWT_SECRET_KEY: str = os.environ['JWT_SECRET_KEY']
